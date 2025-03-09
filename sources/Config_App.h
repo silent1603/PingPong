@@ -1,0 +1,7 @@
+#ifndef CONFIG_APP
+#define CONFIG_APP
+#define HEADLESS_APP 0
+#define DEFAULT_WINDOW_WIDTH 800
+#define DEFAULT_WINDOW_HEIGHT 600
+#define TARGET_FPS 60
+#endif
