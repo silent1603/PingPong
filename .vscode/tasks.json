@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build",
+            "label": "Build Linux",
             "type": "shell",
             "args": [],
             "options": {
@@ -14,6 +14,21 @@
             "linux" : {
                 "command": "${workspaceFolder}/scripts/build/build_linux.sh"
             },
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "build"
+        },
+        {
+            "label": "Build Windows",
+            "type": "shell",
+            "args": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
             "windows" :{
                 "command": "${workspaceFolder}/scripts/build/build_win.bat"
             },
@@ -21,6 +36,64 @@
                 "reveal": "always"
             },
             "group": "build"
+
+        },
+        {
+            "label": "Gen VS2022",
+            "type": "shell",
+            "args": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "windows" :{
+                "command": "${workspaceFolder}/scripts/prj/gen_vs2022.bat"
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "none"
+
+        },
+        {
+            "label": "Gen Makefiles",
+            "type": "shell",
+            "args": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "linux" :{
+                "command": "${workspaceFolder}/scripts/prj/get_make.sh"
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "none"
+
+        },
+        {
+            "label": "Gen Xcode",
+            "type": "shell",
+            "args": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "macOS" :{
+                "command": "${workspaceFolder}/scripts/prj/get_xcode.sh"
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "none"
+
         }
     ]
 }

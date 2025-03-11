@@ -2,9 +2,10 @@
 #define CONFIG_PLATFORMS
 #include "Config_App.h"
 
-#define PLATFORMS_LINUX 0
-#define PLATFORMS_WINDOWS 1
+#define PLATFORMS_LINUX 1
+#define PLATFORMS_WINDOWS 0
 #define PLATFORMS_WEBASM 0
+#define PLATFORMS_ANDROID 0
 
 #if HEADLESS_APP
 #else
