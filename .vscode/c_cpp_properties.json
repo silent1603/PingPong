@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "name": "Wasm",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+        }
+    ],
+    "version": 4
+}

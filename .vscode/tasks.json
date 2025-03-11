@@ -12,7 +12,10 @@
                 "$gcc"
             ],
             "linux" : {
-                "command": "./scripts/build/build_linux.sh"
+                "command": "${workspaceFolder}/scripts/build/build_linux.sh"
+            },
+            "windows" :{
+                "command": "${workspaceFolder}/scripts/build/build_win.bat"
             },
             "presentation": {
                 "reveal": "always"
