@@ -21,12 +21,15 @@ endif()
 #set(CMAKE_C_FLAGS "-Wall -pedantic -MMD")
 if(PLATFORMS STREQUAL "android")
 add_library(pingpong SHARED)
+elseif(PLATFORMS STREQUAL "windows")
+add_executable(pingpong WIN32)
 else()
 add_executable(pingpong)
 endif()
 
 
 if(PLATFORMS STREQUAL "windows")
+find_package(OpenGL REQUIRED)
 foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
     string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
     set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_SOURCE_DIR}/lib )
@@ -44,8 +47,10 @@ if(result)
 endif()
 
 file(GLOB_RECURSE CPP_SOURCES ${CMAKE_SOURCE_DIR}/sources/*.cpp)
+file(GLOB_RECURSE HEADER_SOURCES ${CMAKE_SOURCE_DIR}/sources/*.h)
+source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "" FILES ${CPP_SOURCES} ${HEADER_SOURCES})
 message(STATUS ${CPP_SOURCES})
-target_sources(pingpong PUBLIC ${CPP_SOURCES})
+target_sources(pingpong PUBLIC ${CPP_SOURCES} ${HEADER_SOURCES})
 
 target_include_directories(pingpong PUBLIC ${CMAKE_SOURCE_DIR}/sources)
 target_compile_features(pingpong PUBLIC cxx_std_17)
@@ -72,6 +77,7 @@ target_link_libraries(pingpong PUBLIC OpenGL::OpenGL PUBLIC OpenGL::GLX PUBLIC X
 endif()
 
 if(PLATFORMS STREQUAL "windows")
+target_link_libraries(pingpong PUBLIC OpenGL::GL )
 endif()
 
 if(PLATFORMS STREQUAL "macos")
