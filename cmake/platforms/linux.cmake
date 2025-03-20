@@ -1,0 +1,10 @@
+add_executable(pingpong)
+
+find_package(OpenGL REQUIRED)
+find_package(X11 REQUIRED)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+
+target_link_libraries(pingpong PUBLIC OpenGL::OpenGL PUBLIC OpenGL::GLX PUBLIC X11::X11)

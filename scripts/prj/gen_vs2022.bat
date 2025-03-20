@@ -1,7 +1,6 @@
 @echo off
 
-pushd %~dp0/../..
-echo %cd%
+pushd %~dp0\..\..
 if not exist bin\ (
     mkdir bin
 )
