@@ -55,10 +55,13 @@
 #endif
 
 #if PLATFORMS_WINDOWS
-#include <Windows.h>
+#include <windows.h>
 
 #if USE_OPENGL
 #include <gl/GL.h>
+#include <gl/GLU.h>
+#include <opengl/glext.h>
+#include <opengl/wglext.h>
 #endif
 #endif
 
