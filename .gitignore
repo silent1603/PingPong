@@ -13,3 +13,4 @@ CMakeUserPresets.json
 /bin
 /workspaces/unix_makefiles
 /workspaces/vs2022
+/build
