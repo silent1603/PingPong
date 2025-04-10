@@ -8,11 +8,14 @@
 #define PLATFORMS_ANDROID 0
 #define PLATFORMS_MACOS 0
 
-#define USE_OPENGL 1
-#define USE_VULKAN 0
-#define USE_OPENGLES 0
-#define USE_METAL 0
-#define USE_DIRECTX 0
+//Common headers (freestanding)
+#include <float.h>
+#include <limits.h>
+#include <iso646.h>
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 # if defined(_WIN32)
 #  define PLATFORMS_WINDOWS 1
@@ -45,24 +48,24 @@
 #include <X11/Xutil.h>
 #include <X11/Xcursor/Xcursor.h>
 #endif
-#if USE_OPENGL
+
 #include <GL/gl.h>
 #include <GL/glext.h>
 #include <GL/glx.h>
 #include <GL/glxext.h>
-#endif
 
 #endif
 
 #if PLATFORMS_WINDOWS
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#if USE_OPENGL
 #include <gl/GL.h>
 #include <gl/GLU.h>
 #include <opengl/glext.h>
 #include <opengl/wglext.h>
-#endif
+
+
 #endif
 
 #endif
