@@ -20,6 +20,7 @@ for /r ".\sources" %%f in (*.cpp) do (
     set "cpp_files=!cpp_files! %%f"
 )
 
+
 if not defined cpp_files (
     echo No .cpp files found in the sources directory!
     exit /b 1
@@ -27,7 +28,8 @@ if not defined cpp_files (
 
 pushd .\bin
 echo Compiling: %cpp_files%
-cl %cpp_files% /link /out:pingpong.exe
+
+cl %cpp_files%  /I"../sources/app" /I"../sources/externals"  /link  /out:pingpong.exe opengl32.lib user32.lib gdi32.lib
 popd
 popd
 exit /b

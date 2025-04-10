@@ -41,7 +41,7 @@ source_group(TREE "${CMAKE_SOURCE_DIR}" PREFIX "" FILES ${CPP_SOURCES} ${HEADER_
 message(STATUS ${CPP_SOURCES})
 target_sources(pingpong PUBLIC ${CPP_SOURCES} ${HEADER_SOURCES})
 
-target_include_directories(pingpong PUBLIC ${CMAKE_SOURCE_DIR}/sources/core)
+target_include_directories(pingpong PUBLIC ${CMAKE_SOURCE_DIR}/sources/app)
 target_include_directories(pingpong PUBLIC ${CMAKE_SOURCE_DIR}/sources/externals)
 target_compile_features(pingpong PUBLIC cxx_std_17)
 set_target_properties(pingpong PROPERTIES POSITION_INDEPENDENT_CODE ON)
