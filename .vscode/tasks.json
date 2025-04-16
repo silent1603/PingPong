@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build Linux",
+            "label": "Build Debug Linux",
             "type": "shell",
             "args": [],
             "options": {
@@ -12,7 +12,7 @@
                 "$gcc"
             ],
             "linux" : {
-                "command": "${workspaceFolder}/scripts/build/build_linux.sh"
+                "command": "${workspaceFolder}/scripts/build/build_linux_debug.sh"
             },
             "presentation": {
                 "reveal": "always"
@@ -20,7 +20,25 @@
             "group": "build"
         },
         {
-            "label": "Build Windows",
+            "label": "Build Release Linux",
+            "type": "shell",
+            "args": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "linux" : {
+                "command": "${workspaceFolder}/scripts/build/build_linux_release.sh"
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "build"
+        },
+        {
+            "label": "Build Debug Windows",
             "type": "shell",
             "args": [],
             "options": {
@@ -30,7 +48,26 @@
                 "$gcc"
             ],
             "windows" :{
-                "command": "${workspaceFolder}/scripts/build/build_win.bat"
+                "command": "${workspaceFolder}\\scripts\\build\\build_win_debug.bat"
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "build"
+
+        },
+        {
+            "label": "Build Release Windows",
+            "type": "shell",
+            "args": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "windows" :{
+                "command": "${workspaceFolder}\\scripts\\build\\build_win_release.bat"
             },
             "presentation": {
                 "reveal": "always"

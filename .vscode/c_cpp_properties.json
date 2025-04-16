@@ -3,7 +3,8 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**",
+                "${workspaceFolder}/sources/app",
+                "${workspaceFolder}/sources/externals",
                 "/usr/include",
                 "/usr/local/include"
             ],
@@ -16,7 +17,8 @@
         {
             "name": "Windows",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}\\sources\\app",
+                "${workspaceFolder}\\sources\\externals",
             ],
             "defines": [
                 "_WIN32", "PLATFORMS_WINDOWS"
@@ -29,7 +31,8 @@
         {
             "name": "macOS",
             "includePath": [
-                "${workspaceFolder}/**",
+                "${workspaceFolder}/sources/app",
+                "${workspaceFolder}/sources/externals",
                 "/usr/include",
                 "/usr/local/include"
             ],
