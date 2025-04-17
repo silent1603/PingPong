@@ -1,30 +1,37 @@
-#include "Globals.h"
-#include "helpers/Macro_Helpers.h"
+#include "GlobalsData.h"
+
 #if PLATFORMS_WINDOWS
+#include "helpers/Macro_Helpers.h"
+#include "InputSystem.h"
 
-
-HWND g_hwnd = 0;
-HDC g_hdc = 0;
-HGLRC g_hglrc = 0;
 LRESULT CALLBACK MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB;
-PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB;
 
-//GL setup
-GLvoid render(GLvoid);
 
-inline void fatal_error(char* msg)
+inline void fatal_error(char *msg)
 {
 	MessageBoxA(NULL, msg, "Error", MB_OK | MB_ICONEXCLAMATION);
 }
 
+inline void input()
+{
+	if(IsKeyDown(VK_ESCAPE))
+	{
+		UNSET_FLAG(appInformation.properties[(int)AppPropertiesDefine::FEATURES], (int)AppFeaturesDefine::IS_RUNNING);
+	}
+}
+
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
 
-	//CreateWindow
-
+	// CreateWindow
+	appInformation.hInstance = hInstance;
 	WNDCLASSEX wndClass = {};
 	MSG msg;
+	DEVMODE dmScreenSettings;
+	int maxScreenWidth;
+	int maxScreenHeight;
+	int posX, posY;
 	{
 		wndClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 		wndClass.lpfnWndProc = (WNDPROC)MainWndProc;
@@ -40,31 +47,58 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 		wndClass.cbSize = sizeof(WNDCLASSEX);
 	}
 
-
 	if (RegisterClassEx(&wndClass))
 	{
-		RECT rect = { 0,0,appProperties[(int)AppPropertiesDefine::WINDOW_WIDTH],appProperties[(int)AppPropertiesDefine::WINDOW_HEIGHT] };
-		DWORD windowstyle = WS_OVERLAPPEDWINDOW;
-		AdjustWindowRect(&rect, windowstyle, false);
-		windowstyle |= WS_VISIBLE;
-		g_hwnd = CreateWindowEx(0, wndClass.lpszClassName, TEXT(TO_STRING(APP_NAME)), windowstyle,
-			CW_USEDEFAULT,
-			CW_USEDEFAULT,
-			rect.right - rect.left,
-			rect.bottom - rect.top,
-			0,
-			0,
-			hInstance,
-			0);
+		maxScreenWidth = GetSystemMetrics(SM_CXSCREEN);
+		maxScreenHeight = GetSystemMetrics(SM_CYSCREEN);
+		appInformation.properties[(int)AppPropertiesDefine::WINDOW_WIDTH] = maxScreenWidth;
+		appInformation.properties[(int)AppPropertiesDefine::WINDOW_HEIGHT] = maxScreenWidth;
+		if (HAS_FLAG(appInformation.properties[(int)AppPropertiesDefine::FEATURES], (int)AppFeaturesDefine::FULLSCREEN))
+		{
+			// If full screen set the screen to maximum size of the users desktop and 32bit.
+			memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
+			dmScreenSettings.dmSize = sizeof(dmScreenSettings);
+			dmScreenSettings.dmPelsWidth = (unsigned long)maxScreenWidth;
+			dmScreenSettings.dmPelsHeight = (unsigned long)maxScreenHeight;
+			dmScreenSettings.dmBitsPerPel = 32;
+			dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
-		if (g_hwnd)
+			// Change the display settings to full screen.
+			ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
+
+			// Set the position of the window to the top left corner.
+			posX = posY = 0;
+		} 
+		else
+		{
+			// Place the window in the middle of the screen.
+			posX = (GetSystemMetrics(SM_CXSCREEN) -  appInformation.properties[(int)AppPropertiesDefine::WINDOW_WIDTH])  / 2;
+			posY = (GetSystemMetrics(SM_CYSCREEN) -  appInformation.properties[(int)AppPropertiesDefine::WINDOW_HEIGHT]) / 2;
+		}
+		DWORD windowstyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE;
+
+		appInformation.hwnd = CreateWindowEx(0, wndClass.lpszClassName, TEXT(TO_STRING(APP_NAME)), windowstyle,
+								posX,
+								posY,
+								appInformation.properties[(int)AppPropertiesDefine::WINDOW_WIDTH],
+								appInformation.properties[(int)AppPropertiesDefine::WINDOW_HEIGHT],
+								0,
+								0,
+								hInstance,
+								0);
+
+		if (appInformation.hwnd)
 		{
 
-			ShowWindow(g_hwnd, nCmdShow);
-			UpdateWindow(g_hwnd);
-			SET_FLAG(appProperties[(int)AppPropertiesDefine::FEATURES], (int)AppFeaturesDefine::IS_RUNNING);
-			while (HAS_FLAG(appProperties[(int)AppPropertiesDefine::FEATURES], (int)AppFeaturesDefine::IS_RUNNING))
+			ShowWindow(appInformation.hwnd, nCmdShow);
+			SetForegroundWindow(appInformation.hwnd);
+			SetFocus(appInformation.hwnd);
+			ShowCursor(false);
+			UpdateWindow(appInformation.hwnd);
+			SET_FLAG(appInformation.properties[(int)AppPropertiesDefine::FEATURES], (int)AppFeaturesDefine::IS_RUNNING);
+			while (HAS_FLAG(appInformation.properties[(int)AppPropertiesDefine::FEATURES], (int)AppFeaturesDefine::IS_RUNNING))
 			{
+
 				while (PeekMessage(&msg, 0, 0, 0, PM_NOREMOVE))
 				{
 					if (!GetMessage(&msg, NULL, 0, 0))
@@ -73,12 +107,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 					}
 					if (msg.message == WM_QUIT)
 					{
-						UNSET_FLAG(appProperties[(int)AppPropertiesDefine::FEATURES], (int)AppFeaturesDefine::IS_RUNNING);
+						UNSET_FLAG(appInformation.properties[(int)AppPropertiesDefine::FEATURES], (int)AppFeaturesDefine::IS_RUNNING);
 					}
 					TranslateMessage(&msg);
 					DispatchMessage(&msg);
 				}
-				render();
+				input();
+
 			}
 		}
 	}
@@ -89,103 +124,16 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 LRESULT CALLBACK MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	RECT rect;
-	LONG    lRet = 0;
+	LONG lRet = 0;
 	switch (uMsg)
 	{
 	case WM_CREATE:
 	{
-		if (HAS_FLAG(appProperties[(int)AppPropertiesDefine::OPENGL_FEATURES], (int)AppOpenGLFeaturesDefine::ENABLE))
-		{
-			g_hdc = GetDC(hwnd);
-			PIXELFORMATDESCRIPTOR pfd, * ppfd;
-			int pixelformat;
 
-			ppfd = &pfd;
-
-			ppfd->nSize = sizeof(PIXELFORMATDESCRIPTOR);
-			ppfd->nVersion = 1;
-			ppfd->dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL |
-				PFD_DOUBLEBUFFER;
-			ppfd->dwLayerMask = PFD_MAIN_PLANE;
-			ppfd->iPixelType = PFD_TYPE_COLORINDEX;
-			ppfd->cColorBits = 32;
-			ppfd->cAlphaBits = 8;
-			ppfd->cDepthBits = 24;
-			ppfd->cAccumBits = 0;
-			ppfd->cStencilBits = 8;
-
-			pixelformat = ChoosePixelFormat(g_hdc, ppfd);
-
-			if (pixelformat == 0)
-			{
-				MessageBox(NULL, TEXT("ChoosePixelFormat failed"), TEXT("Error"), MB_OK);
-				PostQuitMessage(0);
-			}
-
-			if (SetPixelFormat(g_hdc, pixelformat, ppfd) == FALSE)
-			{
-				MessageBox(NULL, TEXT("SetPixelFormat failed"), TEXT("Error"), MB_OK);
-				PostQuitMessage(0);
-			}
-
-			int major = 0;
-			int minor = 0;
-			glGetIntegerv(GL_MAJOR_VERSION, &major);
-			glGetIntegerv(GL_MINOR_VERSION, &minor);
-
-			g_hglrc = wglCreateContext(g_hdc);
-			if (HAS_FLAG(appProperties[(int)AppPropertiesDefine::OPENGL_FEATURES], (int)AppOpenGLFeaturesDefine::USE_EXTENSION))
-			{
-				wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
-				wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
-
-				int pixel_format_attribs[] = {
-				WGL_DRAW_TO_WINDOW_ARB,     GL_TRUE,
-				WGL_SUPPORT_OPENGL_ARB,     GL_TRUE,
-				WGL_DOUBLE_BUFFER_ARB,      GL_TRUE,
-				WGL_ACCELERATION_ARB,       WGL_FULL_ACCELERATION_ARB,
-				WGL_PIXEL_TYPE_ARB,         WGL_TYPE_RGBA_ARB,
-				WGL_COLOR_BITS_ARB,         32,
-				WGL_DEPTH_BITS_ARB,         24,
-				WGL_STENCIL_BITS_ARB,       8,
-				0
-				};
-				int pixel_format;
-				UINT number_formats;
-				wglChoosePixelFormatARB(g_hdc, pixel_format_attribs, 0, 1, &pixel_format, &number_formats);
-				if (!number_formats) {
-					OutputDebugString(TEXT("Failed to set the OpenGL 3.3 pixel format."));
-				}
-				PIXELFORMATDESCRIPTOR pfd;
-				DescribePixelFormat(g_hdc, pixel_format, sizeof(pfd), &pfd);
-				if (!SetPixelFormat(g_hdc, pixel_format, &pfd)) {
-					fatal_error("Failed to set the OpenGL 3.3 pixel format.");
-				}
-
-				// Specify that we want to create an OpenGL 3.3 core profile context
-				int gl33_attribs[] = {
-					WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-					WGL_CONTEXT_MINOR_VERSION_ARB, 3,
-					WGL_CONTEXT_PROFILE_MASK_ARB,  WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-					0,
-				};
-
-				HGLRC gl33_context = wglCreateContextAttribsARB(g_hdc, 0, gl33_attribs);
-				if (!gl33_context) {
-					fatal_error("Failed to create OpenGL 3.3 context.");
-				}
-
-				if (!wglMakeCurrent(g_hdc, gl33_context)) {
-					fatal_error("Failed to activate OpenGL 3.3 rendering context.");
-				}
-			}
-			wglMakeCurrent(g_hdc, g_hglrc);
-
-			GetClientRect(hwnd, &rect);
-			int width = rect.right - rect.left;
-			int height = rect.bottom - rect.top;
-			glViewport(0, 0, width, height);
-		}
+		GetClientRect(hwnd, &rect);
+		int width = rect.right - rect.left;
+		int height = rect.bottom - rect.top;
+	
 	}
 	break;
 	case WM_SIZE:
@@ -193,49 +141,46 @@ LRESULT CALLBACK MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		GetClientRect(hwnd, &rect);
 		int width = rect.right - rect.left;
 		int height = rect.bottom - rect.top;
-		
-		if (HAS_FLAG(appProperties[(int)AppPropertiesDefine::OPENGL_FEATURES], (int)AppOpenGLFeaturesDefine::ENABLE))
-		{
-			glViewport(0, 0, width, height);
-		}
 	}
-	break;
-	case WM_CLOSE:
-	{
-		if (HAS_FLAG(appProperties[(int)AppPropertiesDefine::OPENGL_FEATURES], (int)AppOpenGLFeaturesDefine::ENABLE))
-		{
-			if (g_hglrc)
-				wglDeleteContext(g_hglrc);
-
-		}
-		if (g_hdc)
-			ReleaseDC(hwnd, g_hdc);
-		g_hglrc = 0;
-		g_hdc = 0;
-
-		DestroyWindow(hwnd);
-		UNSET_FLAG(appProperties[(int)AppPropertiesDefine::FEATURES], (int)AppFeaturesDefine::IS_RUNNING);
-	}
-	break;
-
 	break;
 	case WM_DESTROY:
+	case WM_CLOSE:
 	{
-		if (HAS_FLAG(appProperties[(int)AppPropertiesDefine::OPENGL_FEATURES], (int)AppOpenGLFeaturesDefine::ENABLE))
+
+		if (appInformation.hdc)
 		{
-			if (g_hglrc)
-				wglDeleteContext(g_hglrc);
+			ReleaseDC(hwnd, appInformation.hdc);
 		}
-		if (g_hdc)
-			ReleaseDC(hwnd, g_hdc);
+
+		appInformation.hdc = 0;
+
+		DestroyWindow(hwnd);
+
+		ShowCursor(true);
+
+		if (HAS_FLAG(appInformation.properties[(int)AppPropertiesDefine::FEATURES], (int)AppFeaturesDefine::FULLSCREEN))
+		{
+			ChangeDisplaySettings(NULL, 0);
+		}
+
+		appInformation.hwnd = NULL;
+		UnregisterClass(TEXT(TO_STRING(APP_NAME)),appInformation.hInstance);
+		appInformation.hInstance = NULL;
+
+		UNSET_FLAG(appInformation.properties[(int)AppPropertiesDefine::FEATURES], (int)AppFeaturesDefine::IS_RUNNING);
 		PostQuitMessage(0);
-		UNSET_FLAG(appProperties[(int)AppPropertiesDefine::FEATURES], (int)AppFeaturesDefine::IS_RUNNING);
 	}
 	break;
 	case WM_KEYDOWN:
-		switch (wParam) {
-		}
-		break;
+	{
+		KeyDown((unsigned int)wParam);
+	}
+	break;
+	case WM_KEYUP:
+	{
+		KeyUp((unsigned int)wParam);
+	}
+	break;
 	case WM_PAINT:
 	default:
 		lRet = DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -244,16 +189,5 @@ LRESULT CALLBACK MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return lRet;
 }
 
-
-GLvoid render(GLvoid)
-{
-	if (HAS_FLAG(appProperties[(int)AppPropertiesDefine::OPENGL_FEATURES], (int)AppOpenGLFeaturesDefine::ENABLE))
-	{
-		glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		SwapBuffers(g_hdc);
-	}
-}
 
 #endif

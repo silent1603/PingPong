@@ -49,25 +49,13 @@
 #include <X11/Xcursor/Xcursor.h>
 #endif
 
-#include <GL/gl.h>
-#include <GL/glext.h>
-#include <GL/glx.h>
-#include <GL/glxext.h>
-
 #endif
 
 #if PLATFORMS_WINDOWS
 #define WIN32_LEAN_AND_MEAN
+
 #include <windows.h>
 
-#include <gl/GL.h>
-#include <gl/GLU.h>
-#include <opengl/glext.h>
-#include <opengl/wglext.h>
-
-
 #endif
-
 #endif
-
 #endif
