@@ -2,15 +2,11 @@
 
 #if PLATFORMS_WINDOWS
 #include "helpers/Macro_Helpers.h"
-#include "InputSystem.h"
+#include "Input/InputSystem.h"
+#include "logger/ErrorLogger.h"
 
 LRESULT CALLBACK MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-
-inline void fatal_error(char *msg)
-{
-	MessageBoxA(NULL, msg, "Error", MB_OK | MB_ICONEXCLAMATION);
-}
 
 inline void input()
 {
@@ -113,6 +109,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 					DispatchMessage(&msg);
 				}
 				input();
+
 
 			}
 		}
