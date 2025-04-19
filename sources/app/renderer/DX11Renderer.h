@@ -8,9 +8,11 @@
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib")
-
+#pragma comment(lib, "d3dx11.lib")
+#pragma comment(lib, "d3dx10.lib")
 
 #include <d3d11.h>
+#include <d3d10.h>
 #include <directxmath.h>
 struct DX11RendererProprerties
 {
@@ -30,6 +32,27 @@ struct DX11RendererProprerties
 
 
 inline void DX11Renderer_Init()
+{
+    HRESULT result;
+    IDXGIFactory* factory;
+    IDXGIAdapter* adapter;
+    IDXGIOutput* adapterOutput;
+    unsigned int numModes;
+    unsigned int i;
+    unsigned int numerator;
+    unsigned int denominor;
+
+    unsigned long long stringLength;
+    DXGI_MODE_DESC* displayModeList;
+    DXGI_ADAPTER_DESC adapterDesc;
+
+    int error;
+
+    DXGI_SWAP_CHAIN_DESC swapChainDesc;
+    
+}
+
+inline void DX11Renderer_Clean()
 {
 
 }
